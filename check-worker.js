@@ -1,3 +1,5 @@
+const VALID_SIGNATURES = [VALID_SIGNATURE];
+
 addEventListener("fetch", event => {
     event.respondWith(handleRequest(event.request))
 })
@@ -5,23 +7,25 @@ addEventListener("fetch", event => {
 async function handleRequest(request) {
     const url = new URL(request.url)
 
-    if (url.pathname !== "/secure-check" || request.method !== "POST") {
+    if (url.pathname !== "/validate" || request.method !== "POST") {
         return new Response("Not Found", { status: 404 })
     }
 
     try {
         const data = await request.json()
-        const signature = data.signature?.replace(/:/g, "").toUpperCase()
-        const VALID_SIGNATURE = SECRET_VALID_SIGNATURE
+        let signature = data.signature
+        if (!signature) return Response.json({ repo: "" })
 
-        if (signature === VALID_SIGNATURE) {
+        signature = signature.replace(/:/g, "").toUpperCase()
+
+        if (VALID_SIGNATURES.includes(signature)) {
             return Response.json({
                 repo: "https://raw.githubusercontent.com/HXznxinhanba10fa9v-coDekxz/Csnwy7XzmNb/main/repo.json"
             })
         } else {
             return Response.json({ repo: "" })
         }
-    } catch {
+    } catch (e) {
         return Response.json({ repo: "" })
     }
 }
